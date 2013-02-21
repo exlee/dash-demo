@@ -6,12 +6,50 @@ DashboardController = ['$scope','$http','$routeParams',
     $scope.position_keys = {}
     $scope.all_categories = ""
 
+
+    plotRepr = ->
+      return "(" + @minX + "," + @minY +
+        ") to (" + @maxX +  "," + @maxY + ")"
     $scope.grid = {
-      "Plot 1": { active: true }
-      "Plot 2": { active: true }
-      "Plot 3": { active: true }
-      "Plot 4": { active: true }
+      "Plot 1":
+        id: "plot_1"
+        active: true
+        minX: -1
+        minY: -190
+        maxX: 0
+        maxY: 0
+        repr: plotRepr
+        refresh: 0
+      "Plot 2":
+        id: "plot_2"
+        active: true
+        minX: -1
+        minY: 0
+        maxX: 0
+        maxY: 190
+        repr: plotRepr
+        refresh: 0
+      "Plot 3":
+        id: "plot_3"
+        active: true
+        minX: 0
+        minY: -190
+        maxX: 1
+        maxY: 0
+        repr: plotRepr
+        refresh: 0
+      "Plot 4":
+        id: "plot_4"
+        active: true
+        minX: 0
+        minY: 0
+        maxX: 1
+        maxY: 190
+        repr: plotRepr
+        refresh: 0
     }
+
+
 
     # Generating random data
 
@@ -21,7 +59,7 @@ DashboardController = ['$scope','$http','$routeParams',
     ]
 
     dictionaries =
-      color: ["red", "blue", "white", "brown", "navy", "magenta"]
+      color: ["red", "blue", "orange", "gold", "silver", "magenta"]
 
     # Calculating keys
     for key,value of dictionaries
@@ -71,8 +109,9 @@ DashboardController = ['$scope','$http','$routeParams',
       border = 2
 
       grid_len = 0
-      for key of $scope.grid
-        grid_len++
+      for key,val of $scope.grid
+        if val.active
+          grid_len++
       grid_cols = Math.ceil(grid_len/2)
       if grid_len > 1
         grid_rows = 2
@@ -96,6 +135,16 @@ DashboardController = ['$scope','$http','$routeParams',
           "height": cell_height
           "width": cell_width
         )
+      for key of $scope.grid
+        $scope.grid[key].refresh += 1
+
+    $scope.scrollTo = (id) ->
+      if ($("#row_"+id).position().top != 0)
+        scrollTo = $("#row_" + id)
+        $('#footer').animate(
+          scrollTop: scrollTo.offset().top -
+          $("#footer").offset().top + $("#footer").scrollTop()
+        ,1000)
 
     # Watch statements
     $scope.$watch("categories", ->
@@ -109,6 +158,9 @@ DashboardController = ['$scope','$http','$routeParams',
         $scope.all_categories = ""
     ,true
     )
+    $scope.$watch("grid", ->
+      $scope.resizeGrid()
+    ,true)
 
     $(document).ready ->
       $scope.toggleAllCategories()
@@ -117,7 +169,6 @@ DashboardController = ['$scope','$http','$routeParams',
 
     $(window).resize ->
       $scope.resizeGrid()
-
 
   
 ]

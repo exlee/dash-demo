@@ -13,9 +13,12 @@
             label.checkbox(ng-repeat="(name,cell) in grid")
                 input(type="checkbox", ng-model="cell.active")
                 | {{ name }}
+                br
+                | {{ cell.repr() }}
         .span10
             div#graphs
-                .plot_cell(ng-repeat="cell in grid", ng-show="cell.active") Plot {{ $index + 1 }}
+                div(ng-repeat="(name,values) in grid", ng-show="values.active")
+                    pk-plot(plot="values", cats="categories", itm="data", click="scrollTo(id)", id="{{ values.id }}").plot_cell
     .row-fluid#footer
         .span12
             table.table.table-striped
@@ -24,7 +27,7 @@
                     th(ng-repeat="key in position_keys") {{key}}
                     th Category
                 tbody
-                    tr(ng-repeat="item in data", ng-show="activeCategory(item.category)")
+                    tr(ng-repeat="item in data", id="row_{{item.id}}",ng-show="activeCategory(item.category)")
                         td {{ item["id"] }}
                         td(ng-repeat="key in position_keys") {{ item[key] }}
                         td {{ item.category }}

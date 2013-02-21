@@ -34,6 +34,8 @@ exports.config =
           'vendor/scripts/bootstrap/bootstrap-tab.js'
           'vendor/scripts/bootstrap/bootstrap-typeahead.js'
           'vendor/scripts/bootstrap/bootstrap-affix.js'
+          'app/scripts/init.coffee'
+          'app/scripts/directives.coffee'
         ]
 
     stylesheets:

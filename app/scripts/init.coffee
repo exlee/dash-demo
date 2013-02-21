@@ -1,4 +1,4 @@
-angular.module('App', ['ui'])
+app_module = angular.module('App', ['ui'])
 .config(
   [
     '$routeProvider',

@@ -70,12 +70,11 @@ $screen_size: 600px;
     @include box-sizing(border-box);
     padding: 5px;
     margin: 5px;
-    border: 2px dashed grey;
     text-align: center;
     float: left;
+    circle {
+        cursor: pointer
+    }
 }
 
 
-body {
-    background: rgba(250,250,250,0.9);
-}

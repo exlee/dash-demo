@@ -17,12 +17,14 @@
     <div class="span2">
       <h4>Show/hide</h4>
       <label ng-repeat="(name,cell) in grid" class="checkbox">
-        <input type="checkbox" ng-model="cell.active"/>{{ name }}
+        <input type="checkbox" ng-model="cell.active"/>{{ name }}<br/>{{ cell.repr() }}
       </label>
     </div>
     <div class="span10">
       <div id="graphs">
-        <div ng-repeat="cell in grid" ng-show="cell.active" class="plot_cell">Plot {{ $index + 1 }}</div>
+        <div ng-repeat="(name,values) in grid" ng-show="values.active">
+          <pk-plot plot="values" cats="categories" itm="data" click="scrollTo(id)" id="{{ values.id }}" class="plot_cell"></pk-plot>
+        </div>
       </div>
     </div>
   </div>
@@ -35,7 +37,7 @@
           <th>Category</th>
         </thead>
         <tbody>
-          <tr ng-repeat="item in data" ng-show="activeCategory(item.category)">
+          <tr ng-repeat="item in data" id="row_{{item.id}}" ng-show="activeCategory(item.category)">
             <td>{{ item["id"] }}</td>
             <td ng-repeat="key in position_keys">{{ item[key] }}</td>
             <td>{{ item.category }}</td>
