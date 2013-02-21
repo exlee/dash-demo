@@ -58,18 +58,24 @@ $screen_size: 600px;
 }
 
 #content {
-    overflow-y: auto;
+    overflow: hidden;
+    @include box-sizing(border-box);
 }
 #footer {
     overflow-y: auto;
     @include box-sizing(border-box);
 }
 
-.red { background: red; }
-.blue { background: blue; }
-.violet { background: violet; }
-.green { background: green; }
-.brown { background: brown; }
-.navy { background: navy; }
-.magenta { background: magenta; }
-.cyan { background: cyan; }
+.plot_cell {
+    @include box-sizing(border-box);
+    padding: 5px;
+    margin: 5px;
+    border: 2px dashed grey;
+    text-align: center;
+    float: left;
+}
+
+
+body {
+    background: rgba(250,250,250,0.9);
+}

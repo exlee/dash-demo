@@ -1,6 +1,6 @@
 
-<div class="span12">
-  <div id="header" class="row">
+<div class="row-fluid">
+  <div id="header" class="row-fluid">
     <div class="span12 centered">
       <h3>Navigation</h3>
       <div class="navbar">
@@ -13,31 +13,35 @@
       </div>
     </div>
   </div>
-  <div id="content" class="row">
+  <div id="content" class="row-fluid">
     <div class="span2">
       <h4>Show/hide</h4>
+      <label ng-repeat="(name,cell) in grid" class="checkbox">
+        <input type="checkbox" ng-model="cell.active"/>{{ name }}
+      </label>
     </div>
-    <div class="span8">
-      <h4>Graph here</h4>
-    </div>
-    <div class="span2">
-      <h4>Legend</h4>
+    <div class="span10">
+      <div id="graphs">
+        <div ng-repeat="cell in grid" ng-show="cell.active" class="plot_cell">Plot {{ $index + 1 }}</div>
+      </div>
     </div>
   </div>
-  <div id="footer" class="row">
-    <table class="table table-striped">
-      <thead>
-        <th>ID</th>
-        <th ng-repeat="key in position_keys">{{key}}</th>
-        <th ng-repeat="(key,category) in categories" ng-show="categories[key].active">{{key}}</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat="item in data">
-          <td>{{ item["id"] }}</td>
-          <td ng-repeat="key in position_keys">{{ item[key] }}</td>
-          <td ng-repeat="(key,category) in categories" ng-show="categories[key].active">{{item[key]}}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div id="footer" class="row-fluid">
+    <div class="span12">
+      <table class="table table-striped">
+        <thead>
+          <th>ID</th>
+          <th ng-repeat="key in position_keys">{{key}}</th>
+          <th>Category</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in data" ng-show="activeCategory(item.category)">
+            <td>{{ item["id"] }}</td>
+            <td ng-repeat="key in position_keys">{{ item[key] }}</td>
+            <td>{{ item.category }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

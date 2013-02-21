@@ -1,5 +1,5 @@
-.span12
-    .row#header
+.row-fluid
+    .row-fluid#header
         .span12.centered
             h3 Navigation
             .navbar
@@ -7,22 +7,25 @@
                     ul.nav
                         li(ng-class="all_categories"): a(ng-click="toggleAllCategories()") All
                         li(ng-repeat="(category_name,category) in categories", ng-class="category.class"): a(ng-click="toggleCategory(category)") {{ category_name }}
-    .row#content
+    .row-fluid#content
         .span2
             h4 Show/hide
-        .span8
-            h4 Graph here
-        .span2
-            h4 Legend
-    .row#footer
-        table.table.table-striped
-            thead
-                th ID
-                th(ng-repeat="key in position_keys") {{key}}
-                th(ng-repeat="(key,category) in categories", ng-show="categories[key].active") {{key}}
-            tbody
-                tr(ng-repeat="item in data")
-                    td {{ item["id"] }}
-                    td(ng-repeat="key in position_keys") {{ item[key] }}
-                    td(ng-repeat="(key,category) in categories", ng-show="categories[key].active") {{item[key]}}
-                
+            label.checkbox(ng-repeat="(name,cell) in grid")
+                input(type="checkbox", ng-model="cell.active")
+                | {{ name }}
+        .span10
+            div#graphs
+                .plot_cell(ng-repeat="cell in grid", ng-show="cell.active") Plot {{ $index + 1 }}
+    .row-fluid#footer
+        .span12
+            table.table.table-striped
+                thead
+                    th ID
+                    th(ng-repeat="key in position_keys") {{key}}
+                    th Category
+                tbody
+                    tr(ng-repeat="item in data", ng-show="activeCategory(item.category)")
+                        td {{ item["id"] }}
+                        td(ng-repeat="key in position_keys") {{ item[key] }}
+                        td {{ item.category }}
+                    
