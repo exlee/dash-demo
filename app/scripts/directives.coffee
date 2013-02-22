@@ -229,19 +229,22 @@ app_module.directive('pkPlot', ->
           x = parseInt(key.split("|")[0])
           y = parseInt(key.split("|")[1])
           counter = 0
+          key = []
           for item in scope.itm
             if item.x == x and item.y == y and scope.canBeDisplayed(item)
               counter++
+              key.push(item.id)
 
           if counter > 0
-            n_dup_count.push( [x,y, counter] )
+            n_dup_count.push( [x,y, counter, key.join("|")] )
+            
       
 
       # Draw duplicate
       duplicate = vis
       .select("g.duplicate")
       .selectAll("rect")
-      .data(n_dup_count)
+      .data(n_dup_count, (d) -> d[3])
 
       duplicate
       .enter()
@@ -270,6 +273,7 @@ app_module.directive('pkPlot', ->
       .duration(1000)
       .attr("opacity", 1)
 
+
       duplicate.exit()
       .transition()
       .attr("opacity", 0)
@@ -278,7 +282,7 @@ app_module.directive('pkPlot', ->
       duplicate_text = vis
       .select("g.duplicate")
       .selectAll("text")
-      .data(n_dup_count)
+      .data(n_dup_count, (d) -> d[3])
 
       duplicate_text
       .enter()
