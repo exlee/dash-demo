@@ -81,6 +81,10 @@ $screen_size: 600px;
         cursor: pointer;
         fill: white;
     }
+    .expand > rect {
+        -webkit-filter: drop-shadow(3px 3px 3px #000);
+        filter: drop-shadow(3px 3px 3px #000);
+    }
 }
 
 

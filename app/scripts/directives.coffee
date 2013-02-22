@@ -33,7 +33,7 @@ app_module.directive('pkPlot', ->
       ,true
     )
 
-    unique_data_points = []
+    scope.unique_data_points = []
 
     scope.refreshVis = ->
       a = d3.select(element[0]).select('svg').remove()
@@ -84,19 +84,19 @@ app_module.directive('pkPlot', ->
       for item in scope.itm
         if item.x == x and item.y == y and
         scope.cats[item.category].active
-          expand_points.push([x,y,item])
+          expand_points.push(item)
 
       expand_x = d3.scale.linear()
       .domain([0, expand_points.length-1])
-      .range([scope.x(x)-100+margin, scope.x(x)+100-margin])
+      .range([scope.x(x)-40+margin, scope.x(x)+40-margin])
       
       expand.append("rect")
-      .attr("x", scope.x(x)-100)
-      .attr("y", scope.y(y)-50)
+      .attr("x", scope.x(x)-40)
+      .attr("y", scope.y(y)-20)
       .attr("rx", 5)
       .attr("ry", 5)
-      .attr("width", 200)
-      .attr("height", 100)
+      .attr("width", 80)
+      .attr("height", 40)
       .attr("stroke", d3.rgb("#57A8FF"))
       .attr("stroke-width", 2)
       .attr("opacity", 0)
@@ -104,8 +104,8 @@ app_module.directive('pkPlot', ->
       .attr("opacity", 1)
 
       expand.append("text")
-      .attr("x", scope.x(x)-95)
-      .attr("y", scope.y(y)-35)
+      .attr("x", scope.x(x)-38)
+      .attr("y", scope.y(y)-6)
       .text("X")
       .attr("cursor","pointer")
       .on("click",
@@ -129,113 +129,91 @@ app_module.directive('pkPlot', ->
       .attr("cy", scope.y(y))
       .attr("stroke",
         (d) ->
-          d3.rgb(d[2].category)
+          d3.rgb(d.category)
       )
       .attr("r", 5)
       .on("click",
         (d,i) ->
-          scope.click(id: d[2].id)
+          scope.click(id: d.id)
       )
       .attr("opacity", 0)
       .transition()
       .attr("opacity", 1)
 
+    scope.canBeDisplayed = (item, duplicates=undefined) ->
+      main = item.x >= scope.plot.minX and
+      item.x <= scope.plot.maxX and
+      item.y >= scope.plot.minY and
+      item.y <= scope.plot.maxY and scope.cats[item.category].active
+
+      if(duplicates)
+        return main and duplicates[item.x+"|"+item.y] == 1
+      else
+        return main
 
     scope.draw = ->
-      dup_count = {}
-      for item in scope.itm
-        x = item["x"]
-        y = item["y"]
-        if (
-          x >= scope.plot.minX and
-          x <= scope.plot.maxX and
-          y >= scope.plot.minY and
-          y <= scope.plot.maxY and
-          scope.cats[item.category].active
-          )
+      duplicates = {}
+      # Deleting everything
+      for item in scope.unique_data_points
+        item.delete = true
 
-          # Checking for duplicates
-          coords = x+"|"+y
-          if dup_count[coords]
-            dup_count[coords] += 1
+
+      # Counting duplicates
+      for item in scope.itm
+        if (scope.canBeDisplayed(item))
+          key = item.x+"|"+item.y
+          if duplicates[key]
+            duplicates[key] += 1
           else
-            dup_count[coords] = 1
+            duplicates[key] = 1
 
+      # Generating unique values
       for item in scope.itm
-        x = item["x"]
-        y = item["y"]
-        item.deletion = true
-        if (
-          x >= scope.plot.minX and
-          x <= scope.plot.maxX and
-          y >= scope.plot.minY and
-          y <= scope.plot.maxY
-          )
-
+        if scope.canBeDisplayed(item, duplicates)
           found = false
-          if unique_data_points.length > 0
-            for d in unique_data_points
-              if d[0] == x and
-              d[1] == y and
-              d[2].category == item.category
+          for d in scope.unique_data_points
+            if d == item
+              found = true
+              d.delete = false
 
-                found = true
-                if !scope.cats[item.category].active or
-                dup_count[x+"|"+y] == 1
-                  d[2].deletion = true
-                else
-                  d[2].deletion = false
+          if not found
+            item.delete = false
+            scope.unique_data_points.push(item)
 
-          if not found and scope.cats[item.category].active and
-          dup_count[x+"|"+y] == 1
-            item.deletion = false
-            unique_data_points.push([x,y,item])
+      new_arr = []
+      for item in scope.unique_data_points
+        if item.delete == false
+          new_arr.push(item)
 
-      orig_length = unique_data_points.length
-      iter = 0
-      console.group("Removal", scope.plot.id)
-      while iter < orig_length
-        if unique_data_points[iter][2]["deletion"] == true
-          console.group("Removed item")
-          console.log("X", unique_data_points[iter][0])
-          console.log("Y", unique_data_points[iter][1])
-          console.log("ID", unique_data_points[iter][2].id)
-          console.log("Cat", unique_data_points[iter][2].category)
-          console.groupEnd()
-          unique_data_points.remove(iter)
-          orig_length--
-        else
-          iter++
-      console.groupEnd()
-        
-
+      scope.unique_data_points = new_arr
+      
       # Draw unique
       unique = vis
       .select("g.unique")
       .selectAll("circle")
-      .data(unique_data_points)
+      .data(scope.unique_data_points, (d) -> d.id)
 
       unique.enter()
       .append("circle")
       .attr("cx",
-        (d) -> scope.x(d[0])
+        (d) -> scope.x(d.x)
       )
       .attr("cy", height-margin)
       .attr("stroke",
         (d) ->
-          d3.rgb(d[2].category)
+          d3.rgb(d.category)
       )
       .attr("r", 5)
       .on("click",
         (d,i) ->
-          scope.click(id: d[2].id)
+          scope.click(id: d.id)
       )
       .attr("opacity", 0)
       .transition()
       .duration(800)
       .attr("opacity", 1)
       .attr("cy",
-        (d) -> scope.y(d[1])
+        (d) -> scope.y(d.y)
       )
 
       unique.exit()
@@ -246,9 +224,17 @@ app_module.directive('pkPlot', ->
       .remove()
 
       n_dup_count = []
-      for key,value of dup_count
+      for key,value of duplicates
         if value > 1
-          n_dup_count.push( [key, value] )
+          x = parseInt(key.split("|")[0])
+          y = parseInt(key.split("|")[1])
+          counter = 0
+          for item in scope.itm
+            if item.x == x and item.y == y and scope.canBeDisplayed(item)
+              counter++
+
+          if counter > 0
+            n_dup_count.push( [x,y, counter] )
       
 
       # Draw duplicate
@@ -261,10 +247,10 @@ app_module.directive('pkPlot', ->
       .enter()
       .append("rect")
       .attr("x",
-        (d) -> scope.x(d[0].split("|")[0])-12
+        (d) -> scope.x(d[0])-12
       )
       .attr("y",
-        (d) -> scope.y(d[0].split("|")[1])-12
+        (d) -> scope.y(d[1])-12
       )
       .attr("rx", 2)
       .attr("ry", 2)
@@ -276,8 +262,8 @@ app_module.directive('pkPlot', ->
       .attr("opacity", 0)
       .on("click",
         (d) ->
-          x = parseInt(d[0].split("|")[0])
-          y = parseInt(d[0].split("|")[1])
+          x = d[0]
+          y = d[1]
           scope.expandGroup(x,y)
       )
       .transition()
@@ -289,7 +275,6 @@ app_module.directive('pkPlot', ->
       .attr("opacity", 0)
       .remove()
 
-
       duplicate_text = vis
       .select("g.duplicate")
       .selectAll("text")
@@ -298,14 +283,14 @@ app_module.directive('pkPlot', ->
       duplicate_text
       .enter()
       .append("text")
-      .text((d) -> d[1])
+      .text((d) -> d[2])
       .attr "x",
         (d) ->
-          x = d[0].split("|")[0]
+          x = d[0]
           scope.x(x)-5
       .attr "y",
         (d) ->
-          y = d[0].split("|")[1]
+          y = d[1]
           scope.y(y)+5
       .attr("fill", d3.rgb("black"))
       .attr("font-family", "sans-serif")
@@ -314,8 +299,8 @@ app_module.directive('pkPlot', ->
       .attr("opacity", 0)
       .on("click",
         (d) ->
-          x = parseInt(d[0].split("|")[0])
-          y = parseInt(d[0].split("|")[1])
+          x = d[0]
+          y = d[1]
           scope.expandGroup(x,y)
       )
       .transition()
