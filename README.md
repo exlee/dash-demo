@@ -6,6 +6,8 @@ About
 
 Simple Dashboard demo created using [D3.js][] and [AngularJS][].
 Demo has been created as proof-of-concept for commercial client.
+It can be seen [here](http://exlee.github.com/dash-demo/).
+
 
 Features:
 
