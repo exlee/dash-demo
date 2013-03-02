@@ -1,0 +1,28 @@
+.span12
+    .row#header
+        .span12.centered
+            h3 Navigation
+            .navbar
+                .navbar-inner
+                    ul.nav
+                        li(ng-class="all_categories"): a(ng-click="toggleAllCategories()") All
+                        li(ng-repeat="(category_name,category) in categories", ng-class="category.class"): a(ng-click="toggleCategory(category)") {{ category_name }}
+    .row#content
+        .span2
+            h4 Show/hide
+        .span8
+            h4 Graph here
+        .span2
+            h4 Legend
+    .row#footer
+        table.table.table-striped
+            thead
+                th ID
+                th(ng-repeat="key in position_keys") {{key}}
+                th(ng-repeat="(key,category) in categories", ng-show="categories[key].active") {{key}}
+            tbody
+                tr(ng-repeat="item in data")
+                    td {{ item["id"] }}
+                    td(ng-repeat="key in position_keys") {{ item[key] }}
+                    td(ng-repeat="(key,category) in categories", ng-show="categories[key].active") {{item[key]}}
+                
