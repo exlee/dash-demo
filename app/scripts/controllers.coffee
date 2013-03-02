@@ -5,6 +5,7 @@ DashboardController = ['$scope','$http','$routeParams',
     $scope.categories = {}
     $scope.position_keys = {}
     $scope.all_categories = ""
+    $scope.refresh_cycle = 0
 
 
     plotRepr = ->
@@ -14,37 +15,37 @@ DashboardController = ['$scope','$http','$routeParams',
       "Plot 1":
         id: "plot_1"
         active: true
-        minX: -1
-        minY: -190
+        minX: -10
+        minY: 0
         maxX: 0
-        maxY: 0
+        maxY: 10
         repr: plotRepr
         refresh: 0
       "Plot 2":
         id: "plot_2"
-        active: true
-        minX: -1
+        active: false
+        minX: 0
         minY: 0
-        maxX: 0
-        maxY: 190
+        maxX: 10
+        maxY: 10
         repr: plotRepr
         refresh: 0
       "Plot 3":
         id: "plot_3"
-        active: true
-        minX: 0
-        minY: -190
-        maxX: 1
+        active: false
+        minX: -10
+        minY: -10
+        maxX: 0
         maxY: 0
         repr: plotRepr
         refresh: 0
       "Plot 4":
         id: "plot_4"
-        active: true
+        active: false
         minX: 0
-        minY: 0
-        maxX: 1
-        maxY: 190
+        minY: -10
+        maxX: 10
+        maxY: 0
         repr: plotRepr
         refresh: 0
     }
@@ -54,8 +55,8 @@ DashboardController = ['$scope','$http','$routeParams',
     # Generating random data
 
     $scope.position_keys = [
-      "Math.sin(x)"
-      "Math.sin(5*x)*189.32"
+      "x"
+      "y"
     ]
 
     dictionaries =
@@ -66,16 +67,30 @@ DashboardController = ['$scope','$http','$routeParams',
       for item in value
         $scope.categories[item] = { class: ""}
 
+    #for x in [1..1]
     for x in [1..100]
       obj = {id: x}
-      for key in $scope.position_keys
-        if key != "id"
-          obj[key] = Math.round(eval(key)*100)/100
+
+      list = [-10..10]
+      obj['x'] = list[Math.floor(Math.random() * list.length)]
+      obj['y'] = list[Math.floor(Math.random() * list.length)]
 
       list = dictionaries['color']
       obj['category'] = list[Math.floor(Math.random() * list.length)]
 
       $scope.data.push(obj)
+
+    $scope.data.push
+      id: 101
+      x: -5
+      y: 5
+      category: "gold"
+
+    $scope.data.push
+      id: 102
+      x: -5
+      y: 5
+      category: "gold"
 
         
 
@@ -138,6 +153,7 @@ DashboardController = ['$scope','$http','$routeParams',
       for key of $scope.grid
         $scope.grid[key].refresh += 1
 
+
     $scope.scrollTo = (id) ->
       if ($("#row_"+id).position().top != 0)
         scrollTo = $("#row_" + id)
@@ -158,12 +174,26 @@ DashboardController = ['$scope','$http','$routeParams',
         $scope.all_categories = ""
     ,true
     )
+
+    $scope.$watch( ->
+      if($scope.refresh_cycle == 2)
+        $scope.refresh_cycle = 0
+      if($scope.refresh_cycle == 1)
+        $scope.refresh_cycle = 2
+      if($scope.refresh_cycle == 0)
+        return
+    )
     $scope.$watch("grid", ->
-      $scope.resizeGrid()
+      if $scope.refresh_cycle == 0
+        $scope.refresh_cycle += 1
+        $scope.resizeGrid()
     ,true)
 
     $(document).ready ->
-      $scope.toggleAllCategories()
+      #$scope.toggleAllCategories()
+      $scope.categories["gold"].active = true
+      $scope.categories["gold"].class = "active"
+
     $(window).load ->
       $scope.resizeGrid()
 

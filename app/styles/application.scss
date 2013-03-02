@@ -73,7 +73,13 @@ $screen_size: 600px;
     text-align: center;
     float: left;
     circle {
-        cursor: pointer
+        cursor: pointer;
+        fill: white;
+        stroke-width: 3px;
+    }
+    rect {
+        cursor: pointer;
+        fill: white;
     }
 }
 
