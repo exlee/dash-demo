@@ -1,0 +1,49 @@
+
+<div class="row-fluid">
+  <div id="header" class="row-fluid">
+    <div class="span12 centered">
+      <h3>Navigation</h3>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <ul class="nav">
+            <li ng-class="all_categories"><a ng-click="toggleAllCategories()">All</a></li>
+            <li ng-repeat="(category_name,category) in categories" ng-class="category.class"><a ng-click="toggleCategory(category)">{{ category_name }}</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="content" class="row-fluid">
+    <div class="span2">
+      <h4>Show/hide</h4>
+      <label ng-repeat="(name,cell) in grid" class="checkbox">
+        <input type="checkbox" ng-model="cell.active"/>{{ name }}<br/>{{ cell.repr() }}
+      </label>
+    </div>
+    <div class="span10">
+      <div id="graphs">
+        <div ng-repeat="(name,values) in grid" ng-show="values.active">
+          <pk-plot plot="values" cats="categories" itm="data" click="scrollTo(id)" id="{{ values.id }}" class="plot_cell"></pk-plot>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer" class="row-fluid">
+    <div class="span12">
+      <table class="table">
+        <thead>
+          <th>ID</th>
+          <th ng-repeat="key in position_keys">{{key}}</th>
+          <th>Category</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in data" id="row_{{item.id}}" ng-show="activeCategory(item.category)">
+            <td>{{ item["id"] }}</td>
+            <td ng-repeat="key in position_keys">{{ item[key] }}</td>
+            <td>{{ item.category }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
